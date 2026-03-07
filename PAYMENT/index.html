@@ -2,520 +2,170 @@
 <html lang="or">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>E-Vidya Academy — Payment</title>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800;900&family=Noto+Sans+Oriya:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --gold: #FFD700;
-    --gold-light: #FFF176;
-    --gold-dark: #F9A825;
-    --deep: #0D0D2B;
-    --deep2: #1a1a40;
-    --deep3: #12122e;
-    --green: #00E676;
-    --green2: #1de9b6;
-    --white: #ffffff;
-    --soft: rgba(255,255,255,0.07);
-    --border: rgba(255,215,0,0.25);
-  }
-
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  * { margin:0; padding:0; box-sizing:border-box; }
 
   body {
-    font-family: 'Baloo 2', sans-serif;
-    background: var(--deep);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f5f5f5;
     min-height: 100vh;
-    overflow-x: hidden;
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 40px;
   }
 
-  /* ── Animated background ── */
-  .bg-orbs {
-    position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
-  }
-  .orb {
-    position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18; animation: drift 12s ease-in-out infinite alternate;
-  }
-  .orb1 { width:320px;height:320px;background:radial-gradient(circle,#7c3aed,transparent); top:-80px;left:-80px; animation-delay:0s; }
-  .orb2 { width:260px;height:260px;background:radial-gradient(circle,#FFD700,transparent); top:30%;right:-60px; animation-delay:-4s; }
-  .orb3 { width:200px;height:200px;background:radial-gradient(circle,#00E676,transparent); bottom:10%;left:10%; animation-delay:-8s; }
-  @keyframes drift { from{transform:translate(0,0) scale(1);} to{transform:translate(30px,40px) scale(1.1);} }
-
-  /* ── Grain overlay ── */
-  body::after {
-    content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events:none; z-index:1; opacity:0.4;
-  }
-
-  .page { position:relative; z-index:2; padding:20px 16px 40px; max-width:480px; margin:0 auto; }
-
-  /* ── Header ── */
-  .header { text-align:center; padding:24px 0 20px; }
-  .logo-ring {
-    width:72px; height:72px; border-radius:50%;
-    background:linear-gradient(135deg,var(--gold),var(--gold-dark));
-    display:flex; align-items:center; justify-content:center;
-    margin:0 auto 14px;
-    box-shadow:0 0 0 3px rgba(255,215,0,0.2), 0 0 30px rgba(255,215,0,0.3);
-    animation: pulse-ring 2.5s ease-in-out infinite;
-  }
-  @keyframes pulse-ring {
-    0%,100%{ box-shadow:0 0 0 3px rgba(255,215,0,0.2),0 0 30px rgba(255,215,0,0.3); }
-    50%{ box-shadow:0 0 0 8px rgba(255,215,0,0.08),0 0 50px rgba(255,215,0,0.5); }
-  }
-  .logo-ring span { font-size:2em; }
-  .header h1 { color:var(--gold); font-size:1.5em; font-weight:900; letter-spacing:0.5px; line-height:1.3; }
-  .header p { color:rgba(255,255,255,0.55); font-size:0.82em; font-weight:600; margin-top:4px; }
-
-  /* ── Purpose Selector ── */
-  .purpose-section { margin-bottom: 20px; }
-  .purpose-label {
-    color: rgba(255,255,255,0.55); font-size: 0.82em; font-weight: 700;
-    text-align: center; margin-bottom: 12px; letter-spacing: 0.5px;
-  }
-  .purpose-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-  }
-  .purpose-card {
-    background: var(--soft); border: 2px solid var(--border);
-    border-radius: 18px; padding: 18px 12px;
-    text-align: center; cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
-    backdrop-filter: blur(10px); position: relative; overflow: hidden;
-  }
-  .purpose-card:active { transform: scale(0.96); }
-  .purpose-card.selected {
-    border-color: var(--gold);
-    background: linear-gradient(135deg, rgba(255,215,0,0.18), rgba(255,215,0,0.06));
-    box-shadow: 0 0 0 3px rgba(255,215,0,0.15), 0 8px 30px rgba(255,215,0,0.2);
-    transform: translateY(-3px);
-  }
-  .full-width { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 16px; padding: 16px 20px; }
-  .full-width .purpose-icon { margin-bottom: 0; font-size: 1.8em; }
-  .full-width .purpose-name, .full-width .purpose-name-en { text-align: left; }
-  .full-width .purpose-amount { margin-left: auto; font-size: 1.6em; }
-  .purpose-icon { font-size: 2em; margin-bottom: 8px; display: block; }
-  .purpose-name { color: var(--white); font-size: 0.88em; font-weight: 800; line-height: 1.3; margin-bottom: 2px; }
-  .purpose-name-en { color: rgba(255,255,255,0.4); font-size: 0.7em; font-weight: 600; margin-bottom: 8px; }
-  .purpose-amount { color: var(--gold); font-size: 1.5em; font-weight: 900; }
-  .selected-badge {
-    position: absolute; top: 8px; right: 8px;
-    background: var(--gold); color: var(--deep);
-    border-radius: 50%; width: 20px; height: 20px;
-    display: none; align-items: center; justify-content: center;
-    font-size: 0.65em; font-weight: 900;
-  }
-  .purpose-card.selected .selected-badge { display: flex; }
-
-  /* ── Amount card ── */
-  .amount-card {
-    background: linear-gradient(135deg, rgba(255,215,0,0.12), rgba(255,215,0,0.04));
-    border: 1.5px solid var(--border);
-    border-radius: 20px;
-    padding: 20px;
+  h1 {
+    font-size: 1.25em;
+    font-weight: 800;
+    color: #1a1a2e;
     text-align: center;
-    margin-bottom: 20px;
-    backdrop-filter: blur(10px);
-    position: relative;
-    overflow: hidden;
+    margin-bottom: 4px;
   }
-  .amount-card::before {
-    content:''; position:absolute; top:0;left:0;right:0;height:2px;
-    background:linear-gradient(90deg,transparent,var(--gold),transparent);
-    animation: shimmer-line 2.5s linear infinite;
-  }
-  @keyframes shimmer-line { 0%{transform:translateX(-100%);} 100%{transform:translateX(100%);} }
-  .amount-label { color:rgba(255,255,255,0.5); font-size:0.8em; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
-  .amount-value { color:var(--gold); font-size:3em; font-weight:900; line-height:1; }
-  .amount-value sup { font-size:0.4em; vertical-align:super; }
-  .amount-sub { color:rgba(255,255,255,0.45); font-size:0.78em; margin-top:6px; font-weight:600; }
-  .amount-divider { height:1px; background:var(--border); margin:14px 0; }
-  .recipient { display:flex; align-items:center; justify-content:center; gap:8px; }
-  .recipient-icon { width:32px; height:32px; background:linear-gradient(135deg,var(--green),var(--green2)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1em; }
-  .recipient-info { text-align:left; }
-  .recipient-name { color:var(--white); font-size:0.88em; font-weight:800; }
-  .recipient-sub { color:rgba(255,255,255,0.45); font-size:0.72em; font-weight:600; }
 
-  /* ── QR Section ── */
-  .qr-section { text-align:center; margin-bottom:20px; }
-  .qr-label {
-    display:inline-flex; align-items:center; gap:6px;
-    background:rgba(255,215,0,0.1); border:1px solid var(--border);
-    border-radius:20px; padding:6px 14px; margin-bottom:14px;
+  .subtitle {
+    font-size: 0.82em;
+    color: #888;
+    text-align: center;
+    margin-bottom: 24px;
   }
-  .qr-label span { color:var(--gold); font-size:0.8em; font-weight:800; letter-spacing:0.5px; }
 
-  .qr-wrapper {
-    position:relative; display:inline-block; cursor:pointer;
-    animation: float 3s ease-in-out infinite;
+  .qr-box {
+    background: white;
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    margin-bottom: 28px;
+    width: 100%;
+    max-width: 320px;
   }
-  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
 
-  .qr-glow-ring {
-    position:absolute; inset:-8px; border-radius:24px;
-    background:linear-gradient(135deg,var(--gold),var(--gold-dark),var(--gold));
-    animation: rotate-glow 3s linear infinite;
-    z-index:-1;
-    filter:blur(2px);
+  .qr-box img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 10px;
   }
-  @keyframes rotate-glow { 0%{opacity:0.6;} 50%{opacity:1;} 100%{opacity:0.6;} }
 
-  .qr-frame {
-    background:white; border-radius:18px; padding:12px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.5);
-    position:relative; overflow:hidden;
-    width:220px; height:220px;
-    display:flex; align-items:center; justify-content:center;
+  .qr-hint {
+    text-align: center;
+    font-size: 0.78em;
+    color: #aaa;
+    margin-top: 10px;
+    font-weight: 600;
   }
-  .qr-frame img { width:100%; height:100%; object-fit:contain; border-radius:10px; display:block; }
 
-  .qr-tap-hint {
-    margin-top:12px; display:flex; align-items:center; justify-content:center; gap:6px;
+  .fees-box {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    width: 100%;
+    max-width: 320px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
   }
-  .tap-pulse { width:8px; height:8px; background:var(--green); border-radius:50%; animation:tap-blink 1.2s ease-in-out infinite; }
-  @keyframes tap-blink { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.4;transform:scale(0.7);} }
-  .qr-tap-hint span { color:rgba(255,255,255,0.6); font-size:0.78em; font-weight:700; }
 
-  /* ── UPI Direct Button ── */
-  .upi-btn {
-    display:flex; align-items:center; justify-content:center; gap:10px;
-    width:100%; padding:18px;
-    background:linear-gradient(135deg,#00C853,#00E676);
-    color:#003300; border:none; border-radius:16px;
-    font-family:'Baloo 2',sans-serif; font-size:1.1em; font-weight:900;
-    cursor:pointer; text-decoration:none;
-    box-shadow:0 8px 30px rgba(0,230,118,0.35);
-    transition:transform 0.15s, box-shadow 0.15s;
-    margin-bottom:12px;
-    letter-spacing:0.3px;
-    position:relative; overflow:hidden;
+  .fees-title {
+    font-size: 0.78em;
+    font-weight: 800;
+    color: #aaa;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    text-align: center;
   }
-  .upi-btn::after {
-    content:''; position:absolute; top:-50%; left:-60%; width:40%; height:200%;
-    background:rgba(255,255,255,0.25); transform:skewX(-20deg);
-    animation:btn-shine 3s ease-in-out infinite;
+
+  .fee-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
   }
-  @keyframes btn-shine { 0%,100%{left:-60%;} 50%{left:120%;} }
-  .upi-btn:active { transform:scale(0.97); box-shadow:0 4px 15px rgba(0,230,118,0.25); }
 
-  /* ── Steps card ── */
-  .steps-card {
-    background:var(--soft); border:1px solid var(--border);
-    border-radius:18px; padding:18px; margin-bottom:20px;
-    backdrop-filter:blur(10px);
+  .fee-row:last-child { border-bottom: none; }
+
+  .fee-label {
+    font-size: 0.9em;
+    font-weight: 700;
+    color: #333;
   }
-  .steps-title { color:var(--gold); font-size:0.88em; font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:14px; display:flex; align-items:center; gap:6px; }
-  .step-row { display:flex; align-items:flex-start; gap:12px; margin-bottom:12px; }
-  .step-row:last-child { margin-bottom:0; }
-  .step-num { width:28px; height:28px; min-width:28px; border-radius:50%; background:linear-gradient(135deg,var(--gold),var(--gold-dark)); display:flex; align-items:center; justify-content:center; font-size:0.78em; font-weight:900; color:var(--deep); }
-  .step-text { color:rgba(255,255,255,0.75); font-size:0.82em; font-weight:600; line-height:1.6; padding-top:3px; }
-  .step-text strong { color:var(--white); }
 
-  /* ── Divider ── */
-  .or-divider { display:flex; align-items:center; gap:12px; margin:4px 0 16px; }
-  .or-line { flex:1; height:1px; background:var(--border); }
-  .or-text { color:rgba(255,255,255,0.3); font-size:0.75em; font-weight:700; letter-spacing:2px; }
+  .fee-label span {
+    display: block;
+    font-size: 0.75em;
+    color: #aaa;
+    font-weight: 500;
+    margin-top: 2px;
+  }
 
-  /* ── WhatsApp proof button ── */
-  .wa-section { }
-  .wa-title { color:rgba(255,255,255,0.55); font-size:0.8em; font-weight:700; text-align:center; margin-bottom:10px; letter-spacing:0.5px; }
+  .fee-amount {
+    font-size: 1.2em;
+    font-weight: 900;
+    color: #1a1a2e;
+  }
 
   .wa-btn {
-    display:flex; align-items:center; justify-content:center; gap:10px;
-    width:100%; padding:16px;
-    background:#075E54; border:2px solid #25D366;
-    color:white; border-radius:16px;
-    font-family:'Baloo 2',sans-serif; font-size:1em; font-weight:800;
-    cursor:pointer; text-decoration:none;
-    box-shadow:0 6px 24px rgba(37,211,102,0.25);
-    transition:transform 0.15s, box-shadow 0.15s;
-    position:relative; overflow:hidden;
+    display: block;
+    width: 100%;
+    max-width: 320px;
+    margin-top: 20px;
+    padding: 15px;
+    background: #25D366;
+    color: white;
+    border-radius: 14px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 0.95em;
+    font-weight: 800;
+    box-shadow: 0 4px 16px rgba(37,211,102,0.3);
   }
-  .wa-btn:active { transform:scale(0.97); }
-  .wa-icon { font-size:1.4em; }
-  .wa-btn-text { text-align:left; }
-  .wa-btn-text .line1 { font-size:1em; font-weight:900; display:block; }
-  .wa-btn-text .line2 { font-size:0.72em; opacity:0.75; display:block; font-weight:600; }
-
-  /* ── Notice ── */
-  .notice {
-    background:rgba(255,215,0,0.07); border:1px solid rgba(255,215,0,0.2);
-    border-radius:14px; padding:14px; margin-top:18px; text-align:center;
-  }
-  .notice p { color:rgba(255,255,255,0.5); font-size:0.76em; line-height:1.7; font-weight:600; }
-  .notice strong { color:var(--gold); }
-
-  /* ── Success overlay ── */
-  .success-overlay {
-    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85);
-    z-index:1000; justify-content:center; align-items:center; padding:24px;
-  }
-  .success-overlay.show { display:flex; }
-  .success-box {
-    background:linear-gradient(135deg,var(--deep2),var(--deep3));
-    border:2px solid var(--green); border-radius:24px; padding:32px 24px;
-    text-align:center; max-width:320px; width:100%;
-    animation:pop-in 0.4s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  @keyframes pop-in { from{transform:scale(0.7);opacity:0;} to{transform:scale(1);opacity:1;} }
-  .success-icon { font-size:3.5em; margin-bottom:10px; }
-  .success-box h2 { color:var(--green); font-size:1.4em; font-weight:900; margin-bottom:8px; }
-  .success-box p { color:rgba(255,255,255,0.65); font-size:0.85em; line-height:1.6; font-weight:600; margin-bottom:20px; }
-  .success-wa-btn {
-    display:block; width:100%; padding:14px;
-    background:#25D366; color:white; border:none; border-radius:12px;
-    font-family:'Baloo 2',sans-serif; font-size:1em; font-weight:900;
-    cursor:pointer; text-decoration:none; margin-bottom:10px;
-  }
-  .success-close {
-    background:none; border:none; color:rgba(255,255,255,0.4);
-    font-size:0.85em; cursor:pointer; font-family:'Baloo 2',sans-serif;
-    text-decoration:underline;
-  }
-
-  /* ── Footer ── */
-  .footer-note { text-align:center; margin-top:28px; color:rgba(255,255,255,0.2); font-size:0.72em; font-weight:600; }
 </style>
 </head>
 <body>
 
-<div class="bg-orbs">
-  <div class="orb orb1"></div>
-  <div class="orb orb2"></div>
-  <div class="orb orb3"></div>
-</div>
+  <h1>🎓 E-Vidya Academy</h1>
+  <p class="subtitle">ଏହି QR ସ୍କ୍ୟାନ୍ କରି ପେମେଣ୍ଟ କରନ୍ତୁ</p>
 
-<div class="page">
-
-  <!-- Header -->
-  <div class="header">
-    <div class="logo-ring"><span>🎓</span></div>
-    <h1>E-Vidya Academy</h1>
-    <p>ସୁରକ୍ଷିତ ଫି ପ୍ରଦାନ ପୋର୍ଟାଲ</p>
+  <div class="qr-box">
+    <img src="https://raw.githubusercontent.com/happysangitanms/evidya/main/SMRUTIREKHA%20QR.jpeg" alt="UPI QR Code">
+    <p class="qr-hint">Any UPI app — PhonePe · GPay · Paytm</p>
   </div>
 
-  <!-- Purpose Selector -->
-  <div class="purpose-section">
-    <div class="purpose-label">ଆପଣ କେଉଁ କାରଣ ପାଇଁ ପ୍ରଦାନ କରୁଛନ୍ତି ?</div>
-    <div class="purpose-grid">
+  <div class="fees-box">
+    <div class="fees-title">ଶୁଳ୍କ ବିବରଣୀ</div>
 
-      <div class="purpose-card" id="card-class" onclick="selectPurpose('class')">
-        <div class="selected-badge">✓</div>
-        <div class="purpose-icon">📚</div>
-        <div class="purpose-name">ମାସିକ ଶ୍ରେଣୀ ଶୁଳ୍କ</div>
-        <div class="purpose-name-en">Monthly Class Fee</div>
-        <div class="purpose-amount">₹150</div>
+    <div class="fee-row">
+      <div class="fee-label">
+        ମାସିକ ଶ୍ରେଣୀ ଶୁଳ୍କ
+        <span>Monthly Class Fee</span>
       </div>
+      <div class="fee-amount">₹150</div>
+    </div>
 
-      <div class="purpose-card" id="card-specimen" onclick="selectPurpose('specimen')">
-        <div class="selected-badge">✓</div>
-        <div class="purpose-icon">📝</div>
-        <div class="purpose-name">ଆବେଦନ ନମୁନା</div>
-        <div class="purpose-name-en">Specimen of Application</div>
-        <div class="purpose-amount">₹120</div>
+    <div class="fee-row">
+      <div class="fee-label">
+        ଆବେଦନ ନମୁନା
+        <span>Specimen of Application</span>
       </div>
+      <div class="fee-amount">₹120</div>
+    </div>
 
-      <div class="purpose-card full-width" id="card-book" onclick="selectPurpose('book')">
-        <div class="selected-badge">✓</div>
-        <div class="purpose-icon">📖</div>
-        <div class="purpose-name">ପୁସ୍ତକ ଶୁଳ୍କ</div>
-        <div class="purpose-name-en">Book Only</div>
-        <div class="purpose-amount">₹20</div>
+    <div class="fee-row">
+      <div class="fee-label">
+        ପୁସ୍ତକ ଶୁଳ୍କ
+        <span>Book Fee</span>
       </div>
-
+      <div class="fee-amount">₹20</div>
     </div>
   </div>
 
-  <!-- Amount Card (dynamic) -->
-  <div class="amount-card" id="amountCard" style="display:none;">
-    <div class="amount-label" id="amountLabel">ମାସିକ ଶୁଳ୍କ</div>
-    <div class="amount-value"><sup>₹</sup><span id="amountValue">150</span></div>
-    <div class="amount-sub" id="amountSub">Monthly Coaching Fee</div>
-    <div class="amount-divider"></div>
-    <div class="recipient">
-      <div class="recipient-icon">👤</div>
-      <div class="recipient-info">
-        <div class="recipient-name">Smrutirekha Behera</div>
-        <div class="recipient-sub">E-Vidya Academy, Bhadrak, Odisha</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- QR Code (hidden until purpose selected) -->
-  <div class="qr-section" id="qrSection" style="display:none;">
-    <div class="qr-label">
-      <span>📱 QR CODE ସ୍କ୍ୟାନ୍ କରି ପେମେଣ୍ଟ କରନ୍ତୁ</span>
-    </div>
-    <div class="qr-wrapper" onclick="handleQRClick()" id="qrWrapper">
-      <div class="qr-glow-ring"></div>
-      <div class="qr-frame">
-        <img src="https://raw.githubusercontent.com/happysangitanms/evidya/main/SMRUTIREKHA%20QR.jpeg"
-             alt="UPI QR Code"
-             onerror="this.style.display='none'; document.getElementById('qrFallback').style.display='flex'">
-        <div id="qrFallback" style="display:none;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;gap:8px;">
-          <span style="font-size:3em;">📷</span>
-          <span style="color:#666;font-size:0.75em;font-weight:700;text-align:center;">QR Loading...</span>
-        </div>
-      </div>
-    </div>
-    <div class="qr-tap-hint">
-      <div class="tap-pulse"></div>
-      <span>QR ଉପରେ କ୍ଲିକ୍ କଲେ UPI ଆପ୍ ଖୋଲିବ</span>
-    </div>
-  </div>
-
-  <!-- UPI Direct Pay Button (hidden until purpose selected) -->
-  <a href="#" class="upi-btn" id="upiBtn" style="display:none;" onclick="showSuccessAfterDelay()">
-    <span style="font-size:1.3em;">⚡</span>
-    <span id="upiBtnText">ଏଠାରେ UPI ଦ୍ୱାରା ସିଧା ପେମେଣ୍ଟ କରନ୍ତୁ</span>
+  <a class="wa-btn"
+     href="https://wa.me/916372296357?text=🎓%20E-Vidya%20Academy%20Payment%20Proof%0A%0Aଦୟାକରି%20screenshot%20attach%20କରନ୍ତୁ%20।"
+     target="_blank">
+    📲 ପେମେଣ୍ଟ ପ୍ରମାଣ ପଠାନ୍ତୁ
   </a>
 
-  <!-- Steps -->
-  <div class="steps-card">
-    <div class="steps-title">📋 ପେମେଣ୍ଟ କିପରି କରିବେ</div>
-    <div class="step-row">
-      <div class="step-num">1</div>
-      <div class="step-text"><strong>QR ସ୍କ୍ୟାନ୍ କରନ୍ତୁ</strong> — ଯେ କୌଣସି UPI ଆପ୍ (PhonePe, GPay, Paytm) ରେ QR ଉପରେ ଟ୍ୟାପ୍ କରି ସ୍କ୍ୟାନ୍ କରନ୍ତୁ ।</div>
-    </div>
-    <div class="step-row">
-      <div class="step-num">2</div>
-      <div class="step-text"><strong>₹150 ପ୍ରଦାନ କରନ୍ତୁ</strong> — ପ୍ରାପ୍ତକର୍ତ୍ତା ନାମ ଯାଞ୍ଚ କରି Pay କ୍ଲିକ୍ କରନ୍ତୁ ।</div>
-    </div>
-    <div class="step-row">
-      <div class="step-num">3</div>
-      <div class="step-text"><strong>Screenshot ନିଅନ୍ତୁ</strong> — ପେମେଣ୍ଟ ସଫଳ ହେଲେ ରସିଦ ସ୍କ୍ରିନ୍‌ଶଟ୍ ନିଅନ୍ତୁ ।</div>
-    </div>
-    <div class="step-row">
-      <div class="step-num">4</div>
-      <div class="step-text"><strong>WhatsApp ରେ ପଠାନ୍ତୁ</strong> — ନିମ୍ନ ବଟନ ଦ୍ୱାରା ସ୍କ୍ରିନ୍‌ଶଟ୍ ଆମ୍ଭ ନିକଟକୁ ପଠାନ୍ତୁ ।</div>
-    </div>
-  </div>
-
-  <!-- OR divider -->
-  <div class="or-divider">
-    <div class="or-line"></div>
-    <div class="or-text">ପେମେଣ୍ଟ ପରେ</div>
-    <div class="or-line"></div>
-  </div>
-
-  <!-- WhatsApp Proof -->
-  <div class="wa-section">
-    <div class="wa-title">✅ ପେମେଣ୍ଟ ପ୍ରମାଣ ପଠାନ୍ତୁ — Send Payment Proof</div>
-    <a href="https://wa.me/916372296357?text=🎓%20E-Vidya%20Academy%20Fee%20Payment%20Proof%0A%0AନାME%3A%20(ଆପଣଙ୍କ%20ନାମ)%0Aଶ୍ରେଣୀ%3A%20(ଆପଣଙ୍କ%20ଶ୍ରେଣୀ)%0Aପ୍ରଦାନ%20ତାରିଖ%3A%20(ଆଜିର%20ତାରିଖ)%0A%0Aଦୟାକରି%20ଏହି%20message%20ସହ%20payment%20screenshot%20attach%20କରନ୍ତୁ%20।"
-       class="wa-btn" target="_blank">
-      <span class="wa-icon">📲</span>
-      <div class="wa-btn-text">
-        <span class="line1">WhatsApp ରେ Screenshot ପଠାନ୍ତୁ</span>
-        <span class="line2">Tap to send payment proof → +91 63722 96357</span>
-      </div>
-    </a>
-  </div>
-
-  <!-- Notice -->
-  <div class="notice">
-    <p>
-      ⏱️ ପ୍ରମାଣ ପ୍ରାପ୍ତ ହେବାର <strong>1 ଘଣ୍ଟା ମଧ୍ୟରେ</strong> ଆପଣଙ୍କ ସେବା ସକ୍ରିୟ ହେବ ।<br>
-      ସୋମ–ଶନି <strong>9 AM – 8 PM</strong> ମଧ୍ୟରେ ସହାୟତା ଉପଲବ୍ଧ ।
-    </p>
-  </div>
-
-  <div class="footer-note">© 2026 E-Vidya Academy · Private Educational Service · Bhadrak, Odisha</div>
-</div>
-
-<!-- Success Overlay -->
-<div class="success-overlay" id="successOverlay">
-  <div class="success-box">
-    <div class="success-icon">🎉</div>
-    <h2>ପେମେଣ୍ଟ ହୋଇଛି!</h2>
-    <p>ଆପଣ UPI ଆପ୍ ରୁ ଫେରି ଆସିଛନ୍ତି । ଏବେ ପ୍ରମାଣ ଭାବରେ screenshot ଆମ WhatsApp ରେ ପଠାନ୍ତୁ ।</p>
-    <a href="#" id="successWaBtn"
-       class="success-wa-btn" target="_blank">
-      📲 WhatsApp ରେ ପ୍ରମାଣ ପଠାନ୍ତୁ
-    </a>
-    <button class="success-close" onclick="closeSuccess()">ବନ୍ଦ କରନ୍ତୁ</button>
-  </div>
-</div>
-
-<script>
-  const UPI_ID = 'smrutirekha@upi';
-  const UPI_NAME = 'Smrutirekha Behera';
-  const WA_NUMBER = '916372296357';
-
-  const purposes = {
-    'class':    { amount:'150', labelOr:'ମାସିକ ଶ୍ରେଣୀ ଶୁଳ୍କ', labelEn:'Monthly Class Fee',          note:'E-Vidya Academy Monthly Class Fee',        waNote:'ମାସିକ ଶ୍ରେଣୀ ଶୁଳ୍କ ₹150' },
-    'specimen': { amount:'120', labelOr:'ଆବେଦନ ନମୁନା ଶୁଳ୍କ',  labelEn:'Specimen of Application Fee', note:'E-Vidya Academy Specimen of Application Fee', waNote:'ଆବେଦନ ନମୁନା ଶୁଳ୍କ ₹120' },
-    'book':     { amount:'20',  labelOr:'ପୁସ୍ତକ ଶୁଳ୍କ',        labelEn:'Book Fee',                    note:'E-Vidya Academy Book Fee',                 waNote:'ପୁସ୍ତକ ଶୁଳ୍କ ₹20' }
-  };
-
-  let selectedPurpose = null;
-
-  function selectPurpose(key) {
-    selectedPurpose = key;
-    const p = purposes[key];
-
-    // Update card highlight
-    ['class','specimen','book'].forEach(k => {
-      document.getElementById('card-'+k).classList.toggle('selected', k === key);
-    });
-
-    // Update amount card
-    document.getElementById('amountLabel').textContent = p.labelOr;
-    document.getElementById('amountValue').textContent = p.amount;
-    document.getElementById('amountSub').textContent = p.labelEn;
-
-    // Build UPI link
-    const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(UPI_NAME)}&am=${p.amount}&cu=INR&tn=${encodeURIComponent(p.note)}`;
-    document.getElementById('upiBtn').href = upiLink;
-
-    // Show hidden sections with animation
-    const amountCard = document.getElementById('amountCard');
-    const qrSection  = document.getElementById('qrSection');
-    const upiBtn     = document.getElementById('upiBtn');
-
-    amountCard.style.display = 'block';
-    qrSection.style.display  = 'block';
-    upiBtn.style.display     = 'flex';
-
-    // Smooth scroll to amount card
-    setTimeout(() => amountCard.scrollIntoView({ behavior:'smooth', block:'nearest' }), 100);
-  }
-
-  function handleQRClick() {
-    if (!selectedPurpose) { alert('ଦୟାକରି ପ୍ରଥମେ ଶୁଳ୍କ ପ୍ରକାର ବାଛନ୍ତୁ ।'); return; }
-    const p = purposes[selectedPurpose];
-    const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(UPI_NAME)}&am=${p.amount}&cu=INR&tn=${encodeURIComponent(p.note)}`;
-    window.location.href = upiLink;
-    setTimeout(() => showSuccessOverlay(), 2500);
-  }
-
-  function showSuccessAfterDelay() {
-    setTimeout(() => showSuccessOverlay(), 2500);
-  }
-
-  function showSuccessOverlay() {
-    const p = selectedPurpose ? purposes[selectedPurpose] : purposes['class'];
-    const msg = `🎓 E-Vidya Academy — Payment Proof\n\nଶୁଳ୍କ ପ୍ରକାର: ${p.waNote}\nପ୍ରଦାନ ରାଶି: ₹${p.amount}\n\nNAME: (ଆପଣଙ୍କ ନାମ ଲେଖନ୍ତୁ)\nClass/Course: (ଆପଣଙ୍କ ଶ୍ରେଣୀ/ବିଷୟ)\n\nদয়াকরি payment screenshot attach କରନ୍ତୁ ।`;
-    document.getElementById('successWaBtn').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
-    document.getElementById('successOverlay').classList.add('show');
-  }
-
-  function closeSuccess() {
-    document.getElementById('successOverlay').classList.remove('show');
-  }
-
-  // Update WA proof button dynamically too
-  document.querySelector('.wa-btn').addEventListener('click', function() {
-    if (selectedPurpose) {
-      const p = purposes[selectedPurpose];
-      const msg = `🎓 E-Vidya Academy — Payment Proof\n\nଶୁଳ୍କ ପ୍ରକାର: ${p.waNote}\nପ୍ରଦାନ ରାଶି: ₹${p.amount}\n\nNAME: (ଆପଣଙ୍କ ନାମ ଲେଖନ୍ତୁ)\nClass/Course: (ଆପଣଙ୍କ ଶ୍ରେଣୀ/ବିଷୟ)\n\nদয়াকরি payment screenshot attach କରନ୍ତୁ ।`;
-      this.href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
-    }
-  });
-
-  document.getElementById('successOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closeSuccess();
-  });
-</script>
 </body>
 </html>
