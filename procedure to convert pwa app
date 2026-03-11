@@ -1,0 +1,184 @@
+Here's the exact PWA conversion recipe — every piece you need to add to any HTML file.
+
+📦 File 1: manifest.json — Create this new file
+This is a brand new file. No original code is involved.
+json{
+  "name": "Your App Full Name",
+  "short_name": "Short Name",
+  "description": "App description",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+
+📦 File 2: sw.js — Create this new file
+Also brand new. No original code involved.
+javascriptconst CACHE_NAME = 'my-app-v1';
+const SHELL_FILES = ['./index.html', './manifest.json'];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL_FILES))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
+  );
+});
+
+📝 File 3: index.html — These are the exact additions
+STEP 1 — Add inside <head> (after <title> tag)
+Nothing existed here before. Add this block:
+html<!-- PWA -->
+<link rel="manifest" href="./manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Your App Name">
+<meta name="theme-color" content="#667eea">
+<link rel="apple-touch-icon" href="./icon-192.png">
+
+STEP 2 — Add inside <style> (paste at the bottom, before closing </style>)
+Nothing existed here before. Add this block:
+css/* ── PWA Modal ── */
+.pwa-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75); z-index: 9000;
+    justify-content: center; align-items: center; padding: 20px;
+}
+.pwa-overlay.active { display: flex; }
+.pwa-box {
+    background: white; border-radius: 24px; padding: 32px 24px;
+    max-width: 340px; width: 100%; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    border: 3px solid rgba(102,126,234,0.3);
+}
+@keyframes popIn {
+    from { transform: scale(0.88); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+}
+.pwa-icon  { font-size: 3em; margin-bottom: 10px; }
+.pwa-title { color: #667eea; font-size: 1.4em; font-weight: 900; margin-bottom: 8px; }
+.pwa-sub   { color: #764ba2; font-size: 0.85em; font-weight: 700; margin-bottom: 18px; line-height: 1.5; }
+.pwa-install {
+    display: block; width: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; border: none; padding: 15px; border-radius: 14px;
+    font-size: 1em; font-weight: 800; cursor: pointer; margin-bottom: 10px;
+    box-shadow: 0 4px 15px rgba(102,126,234,0.5);
+}
+.pwa-dismiss {
+    background: none; border: none; color: #aaa;
+    font-size: 0.85em; cursor: pointer; padding: 8px; text-decoration: underline;
+}
+
+/* ── PWA Floating Button ── */
+#pwaBtn {
+    display: none; position: fixed; bottom: 20px; left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; border: none; padding: 13px 26px; border-radius: 25px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(102,126,234,0.5);
+    z-index: 9999; white-space: nowrap;
+}
+
+STEP 3 — Add in <body> (paste as the very first thing inside <body>, before any other content)
+Nothing existed here before. Add this block:
+html<!-- PWA Install Modal -->
+<div class="pwa-overlay" id="pwaModal">
+    <div class="pwa-box">
+        <div class="pwa-icon">📲</div>
+        <h2 class="pwa-title">Install App</h2>
+        <p class="pwa-sub">ଆପ୍ ଇନ୍‌ସ୍ଟଲ୍ କରନ୍ତୁ ।<br>Use offline anytime!</p>
+        <button class="pwa-install" onclick="doInstall()">⬇️ Install Now</button>
+        <button class="pwa-dismiss" onclick="dismissPwa()">Not Now</button>
+    </div>
+</div>
+
+<!-- PWA Floating Button -->
+<button id="pwaBtn" onclick="doInstall()">⬇️ Install App</button>
+
+STEP 4 — Add in <script> (paste at the bottom, before closing </script>)
+Nothing existed here before. Add this block:
+javascript/* ── PWA ── */
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('pwaBtn').style.display = 'block';
+    setTimeout(() => document.getElementById('pwaModal').classList.add('active'), 2500);
+});
+
+function doInstall() {
+    dismissPwa();
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(r => {
+            if (r.outcome === 'accepted') document.getElementById('pwaBtn').style.display = 'none';
+            deferredPrompt = null;
+        });
+    }
+}
+
+function dismissPwa() {
+    document.getElementById('pwaModal').classList.remove('active');
+}
+
+window.addEventListener('appinstalled', () => {
+    document.getElementById('pwaBtn').style.display = 'none';
+    dismissPwa();
+    deferredPrompt = null;
+});
+
+/* ── Service Worker ── */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(r => console.log('SW registered:', r.scope))
+            .catch(e => console.log('SW error:', e));
+    });
+}
+
+🗺️ Summary Map
+WhatWhereActionmanifest.jsonSame folder as index.htmlCreate new filesw.jsSame folder as index.htmlCreate new filePWA <meta> + <link> tagsInside <head>, after <title>Add new codePWA CSS (modal + button)Inside <style>, before </style>Add new codePWA modal + button HTMLInside <body>, very first lineAdd new codePWA JS + Service Worker JSInside <script>, before </script>Add new codeicon-192.png + icon-512.pngSame folder as index.htmlAdd image files
+Nothing from the original code was removed or replaced. It was purely additive — these 4 code blocks and 2 new files are all that's needed to turn any HTML app into a PWA.
