@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Doubt Assistant</title>
+    
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+           background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 10px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            height: 95vh;
+        }
+
+        .chat-header {
+           background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+           border-bottom: 3px solid #2563eb;
+        }
+
+        .chat-header h1 {
+            font-size: 1.3rem;
+            margin-bottom: 3px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            line-height: 1.3;
+        }
+
+        .chat-header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 3px;
+        }
+
+        .study-icon {
+            font-size: 2rem;
+            margin: 8px 0;
+            color: #ffd700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .home-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .home-button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.6;
+            animation: slideInUp 0.4s ease-out;
+            position: relative;
+            word-wrap: break-word;
+            font-size: 0.95rem;
+        }
+
+        @keyframes slideInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .bot-message {
+            background: linear-gradient(135deg, #e6f3ff 0%, #cce7ff 100%);
+            border: 2px solid #b3d9ff;
+            color: #1a365d;
+            align-self: flex-start;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            font-weight: 700;
+            border-bottom-left-radius: 8px;
+            text-align: justify;
+        }
+
+        .user-message {
+           background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            align-self: flex-end;
+           box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            border-bottom-right-radius: 8px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .option-button {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-button:hover {
+            transform: translateY(-3px);
+           box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        .option-button:active {
+            transform: translateY(0px);
+        }
+
+        .option-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .option-button:hover::before {
+            left: 100%;
+        }
+
+        .typing-indicator {
+            display: inline-block;
+            background: linear-gradient(135deg, #e6f3ff 0%, #cce7ff 100%);
+            border: 2px solid #b3d9ff;
+            padding: 15px 20px;
+            border-radius: 20px;
+            border-bottom-left-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .typing-indicator span {
+            height: 10px;
+            width: 10px;
+            float: left;
+            margin: 0 3px;
+           background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            display: block;
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+
+        .typing-indicator span:nth-of-type(1) { animation: typing 1.4s infinite; }
+        .typing-indicator span:nth-of-type(2) { animation: typing 1.4s 0.2s infinite; }
+        .typing-indicator span:nth-of-type(3) { animation: typing 1.4s 0.4s infinite; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-15px); opacity: 1; }
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .text-input {
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            outline: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .text-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .submit-button {
+           background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 15px;
+            cursor: pointer;
+           box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .subject-dropdown {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            outline: none;
+            background: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .subject-dropdown:focus {
+           border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #fbbf24;
+            color: #92400e;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 2px solid #34d399;
+            color: #065f46;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 10px 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .consent-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .consent-button {
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .consent-yes {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .consent-no {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 101, 101, 0.3);
+        }
+
+        .consent-yes:hover, .consent-no:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 3px;
+                padding-top: 5px;
+            }
+            
+            .chat-container {
+                height: 98vh;
+                border-radius: 12px;
+            }
+            
+            .chat-header {
+                padding: 12px;
+            }
+            
+            .chat-header h1 {
+                font-size: 1.2rem;
+            }
+
+            .chat-header p {
+                font-size: 0.8rem;
+            }
+            
+            .study-icon {
+                font-size: 1.8rem;
+                margin: 6px 0;
+            }
+
+            .home-button {
+                width: 32px;
+                height: 32px;
+                top: 8px;
+                right: 8px;
+                font-size: 0.85rem;
+            }
+            
+            .chat-messages {
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            .message {
+                max-width: 90%;
+                padding: 10px 14px;
+                font-size: 0.9rem;
+            }
+            
+            .option-button {
+                font-size: 0.85rem;
+                padding: 10px 14px;
+            }
+
+            .text-input {
+                font-size: 0.85rem;
+                padding: 10px 14px;
+            }
+
+            .submit-button {
+                font-size: 0.85rem;
+                padding: 10px 16px;
+            }
+
+            .subject-dropdown {
+                font-size: 0.85rem;
+                padding: 10px 14px;
+            }
+
+            .info-box {
+                font-size: 0.8rem;
+                padding: 10px;
+            }
+
+            .success-box {
+                font-size: 0.85rem;
+                padding: 10px;
+            }
+
+            .consent-button {
+                font-size: 0.85rem;
+                padding: 10px 14px;
+            }
+
+            .consent-container {
+                gap: 10px;
+                margin-top: 10px;
+            }
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+           background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <button class="home-button" id="homeButton">
+                <i class="fas fa-home"></i>
+            </button>
+            <div class="study-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1>ସନ୍ଦେହ(Doubt) ଦୂରୀକରଣ ସହାୟକ</h1>
+            <p>ତୁରନ୍ତ ଆପଣଙ୍କ ସନ୍ଦେହ ଦୂର କରନ୍ତୁ!</p>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages"></div>
+    </div>
+
+    <script>
+        window.doubtBot = null;
+
+        class DoubtBot {
+            constructor() {
+                this.chatMessages = document.getElementById('chatMessages');
+                this.homeButton = document.getElementById('homeButton');
+                this.userContext = {};
+                window.doubtBot = this;
+                
+                this.init();
+            }
+
+            init() {
+                this.homeButton.addEventListener('click', () => this.resetChat());
+                this.startChat();
+            }
+
+            startChat() {
+                const welcomeMessage = `ନମସ୍କାର! 👋 ଏହି ମଞ୍ଚରେ ଆପଣଙ୍କୁ ସ୍ୱାଗତ! ଆପଣଙ୍କ ସନ୍ଦେହ(Doubt) ଦୂର କରିବାରେ ମୁଁ ଆପଣଙ୍କୁ ଯଥାସମ୍ଭବ ସାହାଯ୍ୟ କରିବି । ପାଠ ସମ୍ବନ୍ଧୀୟ ଆପଣଙ୍କର କୌଣସି ସନ୍ଦେହ(Doubt) ଅଛି କି?`;
+
+                this.typeWriter(welcomeMessage, () => {
+                    this.showOptions([
+                        { text: '✅ ହଁ, ମୋର ଏକ ସନ୍ଦେହ(Doubt) ଅଛି', action: 'haveDoubt' },
+                        { text: '❌ ନା, ମୋର କୌଣସି ସନ୍ଦେହ(Doubt)ନାହିଁ', action: 'noDoubt' }
+                    ]);
+                });
+            }
+
+            handleUserChoice(choice, action) {
+                this.addUserMessage(choice);
+                this.removeOptions();
+
+                switch(action) {
+                    case 'haveDoubt':
+                        this.askSubject();
+                        break;
+                    case 'noDoubt':
+                        this.showExploreMessage();
+                        break;
+                    case 'submitDoubt':
+                        this.askDoubtDetails();
+                        break;
+                    case 'changeSubject':
+                        this.askSubject();
+                        break;
+                    case 'confirmSubmission':
+                        this.showWhatsAppConsent();
+                        break;
+                    case 'editDoubt':
+                        this.askDoubtDetails();
+                        break;
+                    case 'newDoubt':
+                        this.askSubject();
+                        break;
+                    case 'exit':
+                        this.showFarewellMessage();
+                        break;
+                    default:
+                        this.startChat();
+                }
+            }
+
+            askSubject() {
+                const message = `ବହୁତ ଭଲ! ଯେଉଁ ବିଷୟରେ ସନ୍ଦେହ(Doubt) ଅଛି, ଦୟାକରି ତାହା ବାଛନ୍ତୁ:`;
+                
+                this.typeWriter(message, () => {
+                    this.showSubjectDropdown();
+                });
+            }
+            
+            showSubjectDropdown() {
+                const dropdownContainer = document.createElement('div');
+                dropdownContainer.id = 'subjectContainer';
+                dropdownContainer.innerHTML = `
+                  <select id="subjectSelect" class="subject-dropdown">
+    <option value="">-- ଗୋଟିଏ ବିଷୟ ବାଛନ୍ତୁ --</option>
+
+    <option value="accounting_xi">Accounting (Class-XI)</option>
+    <option value="accounting_xii">Accounting (Class-XII)</option>
+
+    <option value="bms_xi">BMS (Class-XI)</option>
+    <option value="bms_xii">BMS (Class-XII)</option>
+
+    <option value="bsm_xi">BSM (Class-XI)</option>
+    <option value="bsm_xii">BSM (Class-XII)</option>
+
+    <option value="fe_xi">FE (Class-XI)</option>
+
+    <option value="banking_insurance_xi">Banking &amp; Insurance (Class-XI)</option>
+
+    <option value="fma_xii">FMA (Class-XII)</option>
+    <option value="costing_xii">Costing (Class-XII)</option>
+
+    <option value="it_xi">IT (Class-XI)</option>
+    <option value="it_xii">IT (Class-XII)</option>
+
+    <option value="political_science_xi">ରାଜନୀତି ବିଜ୍ଞାନ (Class-XI)</option>
+    <option value="political_science_xii">ରାଜନୀତି ବିଜ୍ଞାନ (Class-XII)</option>
+
+    <option value="history_xi">ଇତିହାସ (Class-XI)</option>
+    <option value="history_xii">ଇତିହାସ (Class-XII)</option>
+
+    <option value="economics_xi">ଅର୍ଥନୀତି (Class-XI)</option>
+    <option value="economics_xii">ଅର୍ଥନୀତି (Class-XII)</option>
+
+    <option value="logic_xi">ତର୍କଶାସ୍ତ୍ର (Class-XI)</option>
+    <option value="logic_xii">ତର୍କଶାସ୍ତ୍ର (Class-XII)</option>
+
+
+    <option value="others">ଅନ୍ୟାନ୍ୟ</option>
+</select>
+
+                    <div class="input-container">
+                        <button class="submit-button" onclick="doubtBot.handleSubjectSelection()">
+                            <i class="fas fa-check"></i> ଆଗକୁ ବଢନ୍ତୁ
+                        </button>
+                    </div>
+                `;
+                
+                this.chatMessages.appendChild(dropdownContainer);
+                this.scrollToBottom();
+            }
+
+            handleSubjectSelection() {
+                const select = document.getElementById('subjectSelect');
+                const selectedSubject = select.value;
+                
+                if (!selectedSubject) {
+                    alert('ଦୟାକରି ପ୍ରଥମେ ଗୋଟିଏ ବିଷୟ ବାଛନ୍ତୁ!');
+                    return;
+                }
+                
+                this.userContext.subject = selectedSubject;
+                
+                const container = document.getElementById('subjectContainer');
+                if (container) {
+                    container.remove();
+                }
+                
+                this.addUserMessage(selectedSubject);
+                
+                const confirmMessage = `ଆପଣ ବାଛିଛନ୍ତି: **${selectedSubject}**
+
+ବର୍ତ୍ତମାନ, ଦୟାକରି ଆପଣଙ୍କ ସନ୍ଦେହକୁ ବିସ୍ତୃତ ଭାବରେ ବର୍ଣ୍ଣନା କରନ୍ତୁ। ଆପଣ ଯେତେ ଅଧିକ ସୂଚନା ଦେବେ, ମୁଁ ଆପଣଙ୍କୁ ସେତେ ଭଲ ସାହାଯ୍ୟ କରିପାରିବି!`;
+                
+                this.typeWriter(confirmMessage, () => {
+                    this.showDoubtInput();
+                });
+            }
+
+            showDoubtInput() {
+                const inputContainer = document.createElement('div');
+                inputContainer.id = 'doubtInputContainer';
+                inputContainer.innerHTML = `
+                    <div class="info-box">
+                        <strong>💡 ଆପଣଙ୍କ ସନ୍ଦେହ ବର୍ଣ୍ଣନା କରିବା ପାଇଁ ଟିପ୍ସ:</strong><br>
+                        • ବିଷୟ ନାମ ଉଲ୍ଲେଖ କରନ୍ତୁ<br>
+                        • ପ୍ରଶ୍ନ ସଂଖ୍ୟା ଉଲ୍ଲେଖ କରନ୍ତୁ (ଯଦି ଥାଏ)<br>
+                        • ଆପଣ କଣ ବୁଝିପାରୁନାହାଁନ୍ତି ତାହା ଲେଖନ୍ତୁ
+                    </div>
+                    <div class="input-container" style="flex-direction: column; gap: 10px;">
+                        <textarea id="doubtText" class="text-input" rows="5" 
+                            placeholder="ଉଦାହରଣ: ଅମୁକ ପାଠଟି ମୁଁ ବୁଝିପାରୁନାହିଁ । ଦୟାକରି ମୋତେ ସାହାଯ୍ୟ କରନ୍ତୁ ..."></textarea>
+                        <button class="submit-button" onclick="doubtBot.handleDoubtSubmission()" style="width: 100%;">
+                            <i class="fas fa-paper-plane"></i> ସନ୍ଦେହ(Doubt) ଦାଖଲ କରନ୍ତୁ
+                        </button>
+                    </div>
+                `;
+                
+                this.chatMessages.appendChild(inputContainer);
+                this.scrollToBottom();
+            }
+
+            handleDoubtSubmission() {
+                const doubtText = document.getElementById('doubtText').value.trim();
+                
+                if (!doubtText) {
+                    alert('ଦୟାକରି ଦାଖଲ କରିବା ପୂର୍ବରୁ ଆପଣଙ୍କ ସନ୍ଦେହ ବର୍ଣ୍ଣନା କରନ୍ତୁ!');
+                    return;
+                }
+                
+                if (doubtText.length < 10) {
+                    alert('ଦୟାକରି ଆପଣଙ୍କ ସନ୍ଦେହ ବିଷୟରେ ଅଧିକ ବିବରଣୀ ଦିଅନ୍ତୁ (ଅତି କମରେ ୧୦ ଅକ୍ଷର)।');
+                    return;
+                }
+                
+                this.userContext.doubt = doubtText;
+                
+                const container = document.getElementById('doubtInputContainer');
+                if (container) {
+                    container.remove();
+                }
+                
+                this.addUserMessage(doubtText);
+                
+                this.showDoubtSummary();
+            }
+
+            showDoubtSummary() {
+                const message = `ଏଠାରେ ଆପଣଙ୍କ ସନ୍ଦେହର ସାରାଂଶ ଅଛି:
+
+**ବିଷୟ:** ${this.userContext.subject}
+
+**ଆପଣଙ୍କ ସନ୍ଦେହ:**
+${this.userContext.doubt}
+
+ଆପଣ ଏହାକୁ ହ୍ବାଟ୍ସଆପ୍ ମାଧ୍ୟମରେ ଶିକ୍ଷକଙ୍କୁ ପଠାଇବାକୁ ଚାହୁଁଛନ୍ତି କି?`;
+                
+                this.typeWriter(message, () => {
+                    this.showOptions([
+                        { text: '✅ ହଁ, ଶିକ୍ଷକଙ୍କୁ ପଠାନ୍ତୁ', action: 'confirmSubmission' },
+                        { text: '✏️ ସନ୍ଦେହ ସଂଶୋଧନ କରନ୍ତୁ', action: 'editDoubt' },
+                        { text: '🔄 ବିଷୟ ବଦଳାନ୍ତୁ', action: 'changeSubject' }
+                    ]);
+                });
+            }
+
+            askDoubtDetails() {
+                const message = `ଦୟାକରି ଆପଣଙ୍କ ସନ୍ଦେହକୁ ପୁଣି ଅଧିକ ବିବରଣୀ ସହିତ ବର୍ଣ୍ଣନା କରନ୍ତୁ:`;
+                
+                this.typeWriter(message, () => {
+                    this.showDoubtInput();
+                });
+            }
+
+            showWhatsAppConsent() {
+                const message = `ଆପଣଙ୍କ ସନ୍ଦେହ(Doubt) ହ୍ବାଟ୍ସଆପ୍ ମାଧ୍ୟମରେ ଶିକ୍ଷକଙ୍କୁ ପଠାଯିବ ।
+
+ଆପଣଙ୍କ ଶିକ୍ଷକ ପ୍ରାପ୍ତ କରିବେ:
+• ବିଷୟ: ${this.userContext.subject}
+• ଆପଣଙ୍କ ବିସ୍ତୃତ ସନ୍ଦେହ
+• ସମୟ 
+
+ଆପଣ ଆଗକୁ ବଢିବାକୁ ଚାହୁଁଛନ୍ତି କି?`;
+                
+                this.typeWriter(message, () => {
+                    this.showConsentOptions();
+                });
+            }
+
+            showConsentOptions() {
+                const consentContainer = document.createElement('div');
+                consentContainer.className = 'consent-container';
+                consentContainer.id = 'consentContainer';
+                
+                const yesButton = document.createElement('button');
+                yesButton.className = 'consent-button consent-yes';
+                yesButton.innerHTML = '<i class="fas fa-check"></i> ହଁ, ବର୍ତ୍ତମାନ ପଠାନ୍ତୁ';
+                yesButton.onclick = () => this.handleConsent(true);
+                
+                const noButton = document.createElement('button');
+                noButton.className = 'consent-button consent-no';
+                noButton.innerHTML = '<i class="fas fa-times"></i> ବାତିଲ କରନ୍ତୁ';
+                noButton.onclick = () => this.handleConsent(false);
+                
+                consentContainer.appendChild(yesButton);
+                consentContainer.appendChild(noButton);
+                this.chatMessages.appendChild(consentContainer);
+                this.scrollToBottom();
+            }
+
+            handleConsent(consent) {
+                const consentContainer = document.getElementById('consentContainer');
+                if (consentContainer) {
+                    consentContainer.remove();
+                }
+
+                if (consent) {
+                    this.addUserMessage('ହଁ, ବର୍ତ୍ତମାନ ପଠାନ୍ତୁ');
+                    const confirmMessage = `ଆପଣଙ୍କ ସନ୍ଦେହ ହ୍ବାଟ୍ସଆପ୍ ମାଧ୍ୟମରେ ଆପଣଙ୍କ ଶିକ୍ଷକଙ୍କୁ ପଠାଯାଉଛି...`;
+                    
+                    this.typeWriter(confirmMessage, () => {
+                        setTimeout(() => {
+                            this.openWhatsApp();
+                            this.showSuccessMessage();
+                        }, 1000);
+                    });
+                } else {
+                    this.addUserMessage('ବାତିଲ କରନ୍ତୁ');
+                    const cancelMessage = `କୌଣସି ସମସ୍ୟା ନାହିଁ! ଆପଣଙ୍କ ସନ୍ଦେହ ପଠାଯାଇନାହିଁ ।
+
+ଆପଣ କଣ କରିବାକୁ ଚାହୁଁଛନ୍ତି?`;
+                    
+                    this.typeWriter(cancelMessage, () => {
+                        this.showOptions([
+                            { text: '✏️ ମୋ ସନ୍ଦେହ ସଂଶୋଧନ କରନ୍ତୁ', action: 'editDoubt' },
+                            { text: '📚 ନୂଆ ସନ୍ଦେହ ଦାଖଲ କରନ୍ତୁ', action: 'newDoubt' },
+                            { text: '🏠 ମୂଳକୁ ଯାଆନ୍ତୁ', action: 'exit' }
+                        ]);
+                    });
+                }
+            }
+
+            openWhatsApp() {
+                const phoneNumber = "916372296357";
+                const timestamp = new Date().toLocaleString('en-IN', { 
+                    timeZone: 'Asia/Kolkata',
+                    dateStyle: 'medium',
+                    timeStyle: 'short'
+                });
+                
+                const message = encodeURIComponent(
+`🎓 *ଶିକ୍ଷାର୍ଥୀଙ୍କ ସନ୍ଦେହ ଦାଖଲା*
+
+📅 *ତାରିଖ ଓ ସମୟ:* ${timestamp}
+
+📚 *ବିଷୟ:* ${this.userContext.subject}
+
+❓ *ଶିକ୍ଷାର୍ଥୀଙ୍କ ସନ୍ଦେହ:*
+${this.userContext.doubt}
+
+---
+_ଶିକ୍ଷାର୍ଥୀଙ୍କ ସନ୍ଦେହ ସହାୟକ ମାଧ୍ୟମରେ ପଠାଯାଇଛି_`
+                );
+                
+                const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
+                window.open(whatsappURL, '_blank');
+            }
+
+            showSuccessMessage() {
+                const successBox = document.createElement('div');
+                successBox.className = 'success-box';
+                successBox.innerHTML = `
+                    <div style="font-size: 3rem; margin-bottom: 10px;">✅</div>
+                    <strong>ସନ୍ଦେହ ସଫଳତାପୂର୍ବକ ପଠାଯାଇଛି!</strong><br><br>
+                    ଆପଣଙ୍କ ଶିକ୍ଷକ ହ୍ବାଟ୍ସଆପ୍ ମାଧ୍ୟମରେ ଆପଣଙ୍କ ସନ୍ଦେହ ପାଇଛନ୍ତି ଏବଂ ଶୀଘ୍ର ଉତ୍ତର ଦେବେ।<br><br>
+                    📱 ଦୟାକରି ଶିକ୍ଷକଙ୍କ ଉତ୍ତର ପାଇଁ ଆପଣଙ୍କ ହ୍ବାଟ୍ସଆପ୍ ଯାଞ୍ଚ କରନ୍ତୁ।
+                `;
+                this.chatMessages.appendChild(successBox);
+                this.scrollToBottom();
+
+                setTimeout(() => {
+                    this.showOptions([
+                        { text: '📚 ଅନ୍ୟ ସନ୍ଦେହ ଦାଖଲ କରନ୍ତୁ', action: 'newDoubt' },
+                        { text: '👋 ବାହାରକୁ ଯାଆନ୍ତୁ', action: 'exit' }
+                    ]);
+                }, 1500);
+            }
+
+            showExploreMessage() {
+                const message = `ତାହା ଏକଦମ ଠିକ୍! 😊
+
+ଯେତେବେଳେ ଆପଣଙ୍କର କୌଣସି ସନ୍ଦେହ ଥିବ ସେତେବେଳେ ଦୟାକରି ମୋ ପାଖକୁ ଫେରି ଆସନ୍ତୁ । ଆପଣଙ୍କୁ ଭଲ ଭାବରେ ଶିଖିବାରେ ସାହାଯ୍ୟ କରିବାକୁ ଆପଣଙ୍କ ଶିକ୍ଷକ ସର୍ବଦା ଏଠାରେ ଅଛନ୍ତି।
+
+ଆପଣଙ୍କ ଅଧ୍ୟୟନ ପାଇଁ ଶୁଭକାମନା! 📚✨`;
+                
+                this.typeWriter(message, () => {
+                    setTimeout(() => this.resetChat(), 3000);
+                });
+            }
+
+            showFarewellMessage() {
+                const message = `ଶିକ୍ଷାର୍ଥୀ ସନ୍ଦେହ ଦୂରୀକରଣ ସହାୟକ ବ୍ୟବହାର କରିଥିବାରୁ ଧନ୍ୟବାଦ! 🎓
+
+ମନେରଖନ୍ତୁ:
+• ପ୍ରଶ୍ନ ପଚାରିବାକୁ କେବେ ହେଲେ ସଂକୋଚ କରନ୍ତୁ ନାହିଁ
+• ଶିଖିବା ଏକ ଯାତ୍ରା, ଗନ୍ତବ୍ୟ ନୁହେଁ
+• ଆପଣଙ୍କୁ ସମର୍ଥନ କରିବାକୁ ଆପଣଙ୍କ ଶିକ୍ଷକ ଏଠାରେ ଅଛନ୍ତି
+
+ଅଧ୍ୟୟନ ଜାରି ରଖନ୍ତୁ ଏବଂ ଜିଜ୍ଞାସୁ ରୁହନ୍ତୁ! 📚✨`;
+                
+                this.typeWriter(message, () => {
+                    setTimeout(() => this.resetChat(), 4000);
+                });
+            }
+
+            typeWriter(message, callback) {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing-indicator';
+                typingDiv.innerHTML = '<span></span><span></span><span></span>';
+                this.chatMessages.appendChild(typingDiv);
+                this.scrollToBottom();
+
+                setTimeout(() => {
+                    if (typingDiv.parentNode) {
+                        typingDiv.parentNode.removeChild(typingDiv);
+                    }
+
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message bot-message';
+                    this.chatMessages.appendChild(messageDiv);
+                    
+                    let i = 0;
+                    let currentText = '';
+                    
+                    const type = () => {
+                        if (i < message.length) {
+                            currentText += message.charAt(i);
+                            messageDiv.innerHTML = currentText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                            i++;
+                            this.scrollToBottom();
+                            setTimeout(type, 10);
+                        } else {
+                            if (callback) {
+                                setTimeout(callback, 300);
+                            }
+                        }
+                    };
+                    
+                    type();
+                }, 1000);
+            }
+
+            addUserMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user-message';
+                messageDiv.textContent = message;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            showOptions(options) {
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = 'options-container';
+                optionsContainer.id = 'currentOptions';
+                
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-button';
+                    button.innerHTML = option.text;
+                    button.onclick = () => this.handleUserChoice(option.text.replace(/<[^>]*>/g, '').replace(/[^\w\s]/gi, ' ').trim(), option.action);
+                    optionsContainer.appendChild(button);
+                });
+                
+                this.chatMessages.appendChild(optionsContainer);
+                this.scrollToBottom();
+            }
+
+            removeOptions() {
+                const currentOptions = document.getElementById('currentOptions');
+                if (currentOptions) {
+                    currentOptions.remove();
+                }
+            }
+
+            scrollToBottom() {
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+
+            resetChat() {
+                this.chatMessages.innerHTML = '';
+                this.userContext = {};
+                this.startChat();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            new DoubtBot();
+        });
+    </script>
+</body>
+</html>
